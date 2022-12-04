@@ -58,6 +58,11 @@ class UserControllor {
       res.status(500).json(error);
     }
   }
+  //get user/:id/update
+  async update(req, res, next) {
+    const users = await Users.findById(req.params.id);
+    res.send(users);
+  }
   // PATCH: user/:id
   async edit(req, res, next) {
     try {
