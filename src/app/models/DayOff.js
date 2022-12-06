@@ -1,17 +1,19 @@
 const mongoose = require("mongoose");
+const { RquestPartial } = require("../../utils/partial");
+const { RquestSTT } = require("../../utils/status");
 const Schema = mongoose.Schema;
 
 
 const DayOff = new Schema({
   userId: {
-    type: String,
-    requited: true,
-    maxLength: 255,
+      type: Schema.Types.ObjectId,
+      ref: 'Users',
   },
   status: {
     type: String,
+    enum: Object.values(RquestSTT),
+    default: RquestSTT.PENDING,
     requited: true,
-    maxLength: 255,
   },
   reason: {
     type: String,
@@ -21,12 +23,13 @@ const DayOff = new Schema({
     type: Date,
     requited: true,
   },
-  fromDay: {
+  toDay: {
     type: Date,
     requited: true,
   },
-  aprrovalId : {
-    type: Number,
+  partialDay: {
+    type: String,
+    enum: Object.values(RquestPartial),
     requited: true,
   },
 },{
