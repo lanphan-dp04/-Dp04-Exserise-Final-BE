@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { Role } = require("../../utils/role");
 const Schema = mongoose.Schema;
 
 
@@ -27,7 +28,9 @@ const Users = new Schema({
     maxLength: 255,
   },
   role : {
-    type: Number,
+    type: String,
+    enum: Object.values(Role),
+    default: Role.STAFF,
     requited: true,
   },
 },{

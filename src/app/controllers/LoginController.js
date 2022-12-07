@@ -1,32 +1,32 @@
 const User = require("../models/Users");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 class LoginController {
-  // get(req, res, next) {
-  //   res.send("login 123");
-  // }
+
   async post(req, res, next) {
-    const email = req.body.email;
-    const password = req.body.password;
-    await User.findOne({
+    try {
+      const email = req.body.email;
+    const user = await User.findOne({
       email: email,
-      password: password,
     })
-      .then((data) => {
-        if (data) {
-          const token = jwt.sign({ _id: data._id }, "pass");
-          return res
+    !user && res.status(400).json("Wrong credentials!");
+
+    const validated = await bcrypt.compare( req.body.password, user.password);
+    !validated && res.status(400).json("Wrong credentials!");
+
+    if(validated === true) {
+      // const {password,...others}= await user._doc;  
+      const token = await jwt.sign({ _id: user._id }, "pass");
+        return res
             .json(token) 
             .status(200)
-            .redirect("/");
-        }
-        else {
-          return res
-            .status(401)
-            .json('error')
-        }
-      })
-      .catch(next)
+    }
+    } catch (error) {
+      return res
+        .json(error) 
+        .status(500)
+    }
   }
 }
 

@@ -1,7 +1,6 @@
 const bcrypt = require("bcrypt");
 const Users = require("../models/Users");
 const jwt = require("jsonwebtoken");
-const { set } = require("mongoose");
 
 class UserControllor {
   get(req, res, next) {
@@ -24,7 +23,7 @@ class UserControllor {
         return res.status(200).json(data);
       });
     } catch (error) {
-      console.log(error);
+      return res.status(500).josn(error)
     }
   }
   // POST: user/create
@@ -32,14 +31,12 @@ class UserControllor {
     try {
       const salt = await bcrypt.genSalt(10);
       const hashedPass = await bcrypt.hash(req.body.password, salt);
-      console.log(hashedPass);
       const data = new Users({
         userName: req.body.userName,
         password: hashedPass,
         email: req.body.email,
         phoneNumber: req.body.phoneNumber || " ",
         avatar: req.body.avatar || " ",
-        role: req.body.role || " ",
       });
       data
         .save()
