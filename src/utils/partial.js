@@ -1,6 +1,6 @@
 const RquestPartial = {
   MORNING: 'Morning',
-  AFTERNOON: 'Afternoom',
+  AFTERNOON: 'Afternoon',
   ALL_DAY: 'All day',
 }
 module.exports = {RquestPartial}

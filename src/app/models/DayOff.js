@@ -27,6 +27,14 @@ const DayOff = new Schema({
     type: Date,
     requited: true,
   },
+  quantity: {
+    type: Number,
+    requited: true,
+  },
+  listMaster: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Users',
+  }],
   partialDay: {
     type: String,
     enum: Object.values(RquestPartial),

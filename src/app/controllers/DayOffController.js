@@ -10,36 +10,45 @@ class DayOffController {
       .populate('_id')
       .then( user => {
         const userId = user.id;
-        const data = new DayOff({
-          userId: userId,
-          reason: req.body.reason,
-          fromDay: req.body.fromDay,
-          toDay: req.body.toDay,
-          partialDay: req.body.partialDay,
-        });
-        data
-            .save()
-            .then((res) => {
-              Groups.find({
-                memberID : res.userId,
+        const arrMaster = [];
+        Groups.find({
+          memberID : userId,
+        })
+          .then(groups => {
+            groups.forEach( group => {
+              arrMaster.push(...group.masterID)
+              console.log(arrMaster);
+              const data = new DayOff({
+                userId: userId,
+                reason: req.body.reason,
+                fromDay: req.body.fromDay,
+                toDay: req.body.toDay,
+                quantity: req.body.quantity,
+                partialDay: req.body.partialDay,
+                listMaster: arrMaster,
               })
-              .then(groups => {
-                const arrMaster = [];
-                groups.forEach( group => {
-                  arrMaster.push(...group.masterID)
-                })
-                const dataNotifies = new Notifies({
-                  dayoffID: res.id,
-                  masterID: arrMaster,
-                  status: res.status,
-                  note: '',
-                });
-                dataNotifies.save()
-              })
-            })       
-        return res
-          .json(data)  
-          .status(200)
+              data
+                .save()
+                .then(dayoff => {
+                  const dataNotifies = new Notifies({
+                    dayoffID: dayoff.id,
+                    masterID: arrMaster,
+                    status: dayoff.status,
+                    note: '',
+                  })
+                  dataNotifies.save()
+                  return res.json(data).status(200)  
+                }) 
+                .catch(err => {
+                  return res.json(err)
+                    .status(400)
+                })   
+            })
+          })       
+          .catch(err => {
+            return res.json(err)
+              .status(400)
+          })
       })
       .catch(next)
   }

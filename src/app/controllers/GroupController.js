@@ -16,8 +16,9 @@ class GroupController {
         });
         data
           .save()
-          .then(() => res.json(data))
+          .then(() => res.json(data)
             .status(200)
+          )
       })
       .catch(next)
   }
