@@ -10,6 +10,7 @@ function route(app) {
   app.use('/user', userRoute);
   app.use('/login', loginRoute);
   app.use('/dayoff', dayoffRoute);
+  app.use('/group', groupRoute);
   app.use('/notifies', notifiesRoute);
 }
 
