@@ -17,7 +17,6 @@ class DayOffController {
           .then(groups => {
             groups.forEach( group => {
               arrMaster.push(...group.masterID)
-              console.log(arrMaster);
               const data = new DayOff({
                 userId: userId,
                 reason: req.body.reason,
@@ -25,20 +24,28 @@ class DayOffController {
                 toDay: req.body.toDay,
                 quantity: req.body.quantity,
                 partialDay: req.body.partialDay,
-                listMaster: arrMaster,
+                listMaster : [
+                  {
+                    masterId:  group.masterID,
+                  }
+                ],
               })
               data
                 .save()
-                .then(dayoff => {
-                  const dataNotifies = new Notifies({
-                    dayoffID: dayoff.id,
-                    masterID: arrMaster,
-                    status: dayoff.status,
-                    note: '',
-                  })
-                  dataNotifies.save()
-                  return res.json(data).status(200)  
-                }) 
+                .then(() => {
+                  return res.josn(data)
+                      .status(200)
+                })
+                // .then(dayoff => {
+                //   const dataNotifies = new Notifies({
+                //     dayoffID: dayoff.id,
+                //     masterID: arrMaster,
+                //     status: dayoff.status,
+                //     note: '',
+                //   })
+                //   dataNotifies.save()
+                //   return res.json(data).status(200)  
+                // }) 
                 .catch(err => {
                   return res.json(err)
                     .status(400)
