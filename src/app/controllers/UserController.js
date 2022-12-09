@@ -23,7 +23,7 @@ class UserControllor {
         return res.status(200).json(data);
       });
     } catch (error) {
-      return res.status(500).josn(error)
+      return res.status(500).json(error);
     }
   }
   // POST: user/create
@@ -31,17 +31,25 @@ class UserControllor {
     try {
       const salt = await bcrypt.genSalt(10);
       const hashedPass = await bcrypt.hash(req.body.password, salt);
-      const data = new Users({
-        userName: req.body.userName,
-        password: hashedPass,
-        email: req.body.email,
-        phoneNumber: req.body.phoneNumber || " ",
-        avatar: req.body.avatar || " ",
+      const checkMail = await Users.findOne({ email: req.body.email });
+      const checkPhoneNumber = await Users.findOne({
+        phoneNumber: req.body.phoneNumber,
       });
-      data
-        .save()
-        .then(() => res.json(data))
-        .catch(next);
+      if (checkMail || checkPhoneNumber) {
+        return res.status(422).json("Email or phone number already exists");
+      } else {
+        const data = new Users({
+          userName: req.body.userName,
+          password: hashedPass,
+          email: req.body.email,
+          phoneNumber: req.body.phoneNumber || " ",
+          avatar: req.body.avatar || " ",
+        });
+        data
+          .save()
+          .then(() => res.json(data))
+          .catch(next);
+      }
     } catch (error) {
       res.status(500).json(error);
     }
