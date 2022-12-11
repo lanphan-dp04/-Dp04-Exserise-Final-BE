@@ -19,16 +19,25 @@ class GroupController {
   }
   // GET: group/list
   async showGroup(req, res, next) {
-    const users = await Groups.find({});
+    const users = await Groups.find({})
+      .populate("memberID")
+      .populate("masterID");
     try {
       res.send(users);
     } catch (error) {
       res.status(500).json(error);
     }
-    // const Group = await Groups.find({ nameGroup: "group one" }).populate(
-    //   "Users"
-    // );
-    // console.log(Group);
+  }
+  // GET: group/list/id
+  async showOneGroup(req, res, next) {
+    const users = await Groups.findOne({ _id: req.params.id })
+      .populate("memberID")
+      .populate("masterID");
+    try {
+      res.send(users);
+    } catch (error) {
+      res.status(500).json(error);
+    }
   }
 }
 
