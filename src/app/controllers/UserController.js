@@ -43,7 +43,7 @@ class UserControllor {
           password: hashedPass,
           email: req.body.email,
           phoneNumber: req.body.phoneNumber || " ",
-          avatar: req.body.avatar || " ",
+          avatar: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
         });
         data
           .save()

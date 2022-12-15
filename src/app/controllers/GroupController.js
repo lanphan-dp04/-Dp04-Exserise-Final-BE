@@ -20,22 +20,12 @@ class GroupController {
   }
   // POST: group/new
   async newGroup(req, res, next) {
-    // const checkMemberId = await Groups.findOne({
-    //   memberID: req.body.memberID,
-    // });
-    // const checkMasterId = await Groups.findOne({
-    //   MasterID: req.body.MasterID,
-    // });
     const checkNameGroup = await Groups.findOne({
       nameGroup: req.body.nameGroup,
     });
     if (checkNameGroup) {
       return res.status(422).json("Name Group already exists");
-    }
-    // if (checkMemberId || checkMasterId) {
-    //   return res.status(422).json("Member or Master already exists");
-    // }
-    else {
+    } else {
       const groups = new Groups({
         nameGroup: req.body.nameGroup,
         memberID: req.body.memberID,
@@ -47,6 +37,27 @@ class GroupController {
           results: doc,
         });
       });
+    }
+  }
+  // PATCH: group/update/:id
+  async updateGroup(req, res, next) {
+    try {
+      console.log("req", req.params.id);
+      const group = await Groups.findByIdAndUpdate(
+        {
+          _id: req.params.id,
+        },
+        {
+          nameGroup: req.body.nameGroup,
+          memberID: req.body.memberID,
+          masterID: req.body.masterID,
+        }
+      );
+      const newGroup = await group.save();
+      console.log(newGroup);
+      return res.json(newGroup).status(200);
+    } catch (error) {
+      return res.json(error).status(500);
     }
   }
   // GET: group/list
