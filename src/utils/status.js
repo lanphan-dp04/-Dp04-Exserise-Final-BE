@@ -6,9 +6,10 @@ const RquestSTT = {
   CANCLE: 'Cancle',
 }
 const MasterRquestSTT = {
-  APPROVE: 'Approve',
-  REJECT: 'Reject',
+  APPROVED: 'Approved',
   CANCLE: 'Cancle',
+  REJECTED: 'Rejected',
+  REQUEST_CHANGE: 'Request Change'
 }
 module.exports = {RquestSTT , MasterRquestSTT}
 
