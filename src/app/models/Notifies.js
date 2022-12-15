@@ -8,10 +8,10 @@ const Notifies = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'dayoff',
   },
-  masterID : [{
+  masterID : {
     type: Schema.Types.ObjectId,
     ref: 'Users',
-  }],
+  },
   status : {
     type: String,
     enum: Object.values(RquestSTT),

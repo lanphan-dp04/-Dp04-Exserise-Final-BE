@@ -5,6 +5,10 @@ const Schema = mongoose.Schema;
 
 
 const DayOff = new Schema({
+  typeDayOff: {
+    type: String,
+    require: true,
+  },
   userId: {
       type: Schema.Types.ObjectId,
       ref: 'Users',
@@ -27,6 +31,14 @@ const DayOff = new Schema({
     type: Date,
     requited: true,
   },
+  countAction: {
+    type: Number,
+    requited: true,
+  },
+  approved: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Users',
+  }],
   quantity: {
     type: Number,
     requited: true,
