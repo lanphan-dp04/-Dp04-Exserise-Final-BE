@@ -81,6 +81,7 @@ class DayOffController {
         toDay: req.body.toDay,
         quantity: req.body.quantity,
         partialDay: req.body.partialDay,
+        approved: [],
         countAction: 0,
       }) 
       const newDayOff = await resDayOff.save()
