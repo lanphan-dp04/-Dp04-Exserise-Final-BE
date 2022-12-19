@@ -71,9 +71,16 @@ class UserControllor {
   // PATCH: user/:id
   async edit(req, res, next) {
     try {
-      const users = await Users.findByIdAndUpdate(req.params.id, req.body);
-      await Users.save();
-      res.send(users);
+      const checNumberPhone = await Users.findOne({
+        phoneNumber: req.body.phoneNumber,
+      });
+      if (checNumberPhone) {
+        return res.status(422).json(error);
+      } else {
+        const users = await Users.findByIdAndUpdate(req.params.id, req.body);
+        await users.save();
+        res.send(users);
+      }
     } catch (error) {
       res.status(500).json(error);
     }
