@@ -1,6 +1,7 @@
-const { MasterRquestSTT } = require("../../utils/status");
+const { MasterRquestSTT, RquestSTT } = require("../../utils/status");
 const DayOff = require("../models/DayOff");
 const Groups = require("../models/Groups");
+const History = require("../models/History");
 const Notifies = require("../models/Notifies");
 const Users = require("../models/Users");
 class RequestController {
@@ -34,7 +35,6 @@ class RequestController {
       }));
       const responseResultData = [];
       responseResultData.push(...responseData, ...responseDataMe);
-      console.log(responseResultData);
       return res.json(responseResultData).status(200);
     } catch (error) {
       return res.json(error).status(500);
@@ -47,7 +47,6 @@ class RequestController {
         masterID: req.body.masterId,
         dayoffID: req.body.dayoffId,
       });
-      console.log(modelNoti);
       const newNoti = await modelNoti.updateOne({
         status: MasterRquestSTT.APPROVED,
       });
@@ -69,6 +68,15 @@ class RequestController {
             arrMaters.length
           })`,
         });
+        const user = await Users.findOne({ _id: req.body.masterId });
+
+        const dataHistory = new History({
+          logOffId: modelDayOff._id,
+          status: MasterRquestSTT.APPROVED,
+          created: user.userName,
+          content: `${user.userName} approved`,
+        });
+        await dataHistory.save();
       } else {
         return res.json("403").status(403);
       }
@@ -85,7 +93,7 @@ class RequestController {
         masterID: req.body.masterId,
         dayoffID: req.body.dayoffId,
       });
-      const newNoti = await modelNoti.update({
+      const newNoti = await modelNoti.updateOne({
         note: req.body.note || "",
         status: MasterRquestSTT.REJECTED,
       });
@@ -93,10 +101,23 @@ class RequestController {
         _id: req.body.dayoffId,
       });
       const countAction = await modelDayOff.countAction;
-      await modelDayOff.update({
+      await modelDayOff.updateOne({
         countAction: countAction + 1,
         status: MasterRquestSTT.REJECTED,
       });
+
+      const user = await Users.findOne({ _id: req.body.masterId });
+      await modelDayOff.updateOne({
+        countAction: countAction + 1,
+        status: MasterRquestSTT.REJECTED,
+      });
+      const dataHistory = new History({
+        logOffId: modelDayOff._id,
+        status: MasterRquestSTT.REJECTED,
+        created: user.userName,
+        content: `${user.userName} rejected`,
+      });
+      await dataHistory.save();
       return res.json(newNoti).status(200);
     } catch (error) {
       return res.json(error).status(500);
@@ -108,16 +129,25 @@ class RequestController {
         masterID: req.body.masterId,
         dayoffID: req.body.dayoffId,
       });
-      const newNoti = await modelNoti.update({
+      const newNoti = await modelNoti.updateOne({
         note: req.body.note || "",
         status: MasterRquestSTT.REQUEST_CHANGE,
       });
       const modelDayOff = await DayOff.findOne({
         _id: req.body.dayoffId,
       });
-      await modelDayOff.update({
+      await modelDayOff.updateOne({
         status: MasterRquestSTT.REQUEST_CHANGE,
       });
+      const user = await Users.findOne({ _id: req.body.masterId });
+      const dataHistory = new History({
+        logOffId: req.body.dayoffId,
+        note: req.body.note,
+        status: MasterRquestSTT.REQUEST_CHANGE,
+        created: user.userName,
+        content: `${user.userName} request for change`,
+      });
+      await dataHistory.save();
       return res.json(newNoti).status(200);
     } catch (error) {
       return res.json(error).status(500);

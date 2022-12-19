@@ -1,7 +1,9 @@
 const { MasterRquestSTT, RquestSTT } = require("../../utils/status");
 const DayOff = require("../models/DayOff");
 const Groups = require("../models/Groups");
+const History = require("../models/History");
 const Notifies = require("../models/Notifies");
+const Users = require("../models/Users");
 const User = require("../models/Users");
 class DayOffController {
   createDayOff(req, res, next) {
@@ -19,9 +21,9 @@ class DayOffController {
             groups.forEach((group) => {
               arrMasterId.push(group.masterID);
             });
-            const newArrMaster = arrMasterId.toString().split(',');
-            const newArrMasterId = Array.from(new Set(newArrMaster))
-         
+            const newArrMaster = arrMasterId.toString().split(",");
+            const newArrMasterId = Array.from(new Set(newArrMaster));
+
             const data = new DayOff({
               typeDayOff: req.body.typeDayOff,
               userId: userId,
@@ -34,23 +36,33 @@ class DayOffController {
               countAction: 0,
             });
             try {
-              data.save()
-              .then((data) => {
-                const arrMasters = data.listMaster.map( item => {
-                    const dataNotifies = new Notifies({
+              data.save().then(async (data) => {
+                const user = await Users.findOne({ _id: data.userId });
+                const dataHistory = new History({
+                  logOffId: data._id,
+                  status: data.status,
+                  created: user.userName,
+                  content: `${user.userName} requested`,
+                  time: data.partialDay,
+                  fromDay: data.fromDay,
+                  toDay: data.toDay,
+                  quantity: data.quantity,
+                  reason: data.reason,
+                });
+                await dataHistory.save();
+                data.listMaster.map((item) => {
+                  const dataNotifies = new Notifies({
                     dayoffID: data.id,
                     masterID: item,
                     status: data.status,
                     note: "",
                   });
                   return dataNotifies.save();
-                })
-
-                return res.json(data)
-                          .status(200)
+                });
+                return res.json(data).status(200);
               });
             } catch (error) {
-              console.log(error);
+              return res.json(data).status(400);
             }
           })
           .catch((err) => {
@@ -73,23 +85,39 @@ class DayOffController {
 
   async updateDayOff(req, res, next) {
     try {
-      const resDayOff = await DayOff.findByIdAndUpdate({_id: req.body.dayoffId,},{
-        typeDayOff: req.body.typeDayOff,
-        reason: req.body.reason,
-        status: RquestSTT.PENDING,
+      const resDayOff = await DayOff.findByIdAndUpdate(
+        { _id: req.body.dayoffId },
+        {
+          typeDayOff: req.body.typeDayOff,
+          reason: req.body.reason,
+          status: RquestSTT.REQUESTED,
+          fromDay: req.body.fromDay,
+          toDay: req.body.toDay,
+          quantity: req.body.quantity,
+          partialDay: req.body.partialDay,
+          approved: [],
+          countAction: 0,
+        }
+      );
+      const newDayOff = await resDayOff.save();
+
+      const user = await Users.findOne({ _id: req.body.userId });
+
+      const dataHistory = new History({
+        logOffId: req.body.dayoffId,
+        status: RquestSTT.UPDATED,
+        created: user.userName,
+        content: `${user.userName} update requested`,
+        time: req.body.partialDay,
         fromDay: req.body.fromDay,
         toDay: req.body.toDay,
         quantity: req.body.quantity,
-        partialDay: req.body.partialDay,
-        approved: [],
-        countAction: 0,
-      }) 
-      const newDayOff = await resDayOff.save()
-      return res.json(newDayOff)
-                .status(200)
+        reason: req.body.reason,
+      });
+      await dataHistory.save();
+      return res.json(newDayOff).status(200);
     } catch (error) {
-      return res.json(error)
-        .status(400)
+      return res.json(error).status(400);
     }
   }
 }
