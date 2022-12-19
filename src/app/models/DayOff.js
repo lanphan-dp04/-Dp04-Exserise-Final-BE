@@ -16,7 +16,7 @@ const DayOff = new Schema({
   status: {
     type: String,
     enum: Object.values(RquestSTT),
-    default: RquestSTT.PENDING,
+    default: RquestSTT.REQUESTED,
     requited: true,
   },
   reason: {
