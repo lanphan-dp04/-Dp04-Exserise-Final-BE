@@ -39,6 +39,10 @@ const DayOff = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'Users',
   }],
+  canceled: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Users',
+  }],
   quantity: {
     type: Number,
     requited: true,
