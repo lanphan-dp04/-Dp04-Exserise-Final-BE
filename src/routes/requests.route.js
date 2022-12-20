@@ -9,5 +9,7 @@ route.get('/detail/:id', requestController.getDetailRequests)
 route.post('/reject', requestController.rejectRequest)
 route.post('/approve', requestController.approveRequest)
 route.post('/change', requestController.changeRequest)
+// route.post('/revertApproved', requestController.revertApproved)
+// route.post('/revertRejected', requestController.revertRejected)
 
 module.exports = route;
