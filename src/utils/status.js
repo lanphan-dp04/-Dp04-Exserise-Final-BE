@@ -1,15 +1,16 @@
 const RquestSTT = {
   REQUESTED: 'Requested',
-  APPROVE: 'Approve',
-  REJECT: 'Reject',
+  APPROVE: 'Approved',
+  REJECT: 'Rejected',
   UPDATED: 'Updated',
-  CANCLE: 'Cancle',
+  REVERTED: 'Reverted',
+  CANCLE: 'Cancled',
   REQUEST_CHANGE: 'Request Change',
   DAY_OFF: 'Day Off',
 }
 const MasterRquestSTT = {
   APPROVED: 'Approved',
-  CANCLE: 'Cancle',
+  CANCLE: 'Cancled',
   REJECTED: 'Rejected',
   REQUEST_CHANGE: 'Request Change'
 
