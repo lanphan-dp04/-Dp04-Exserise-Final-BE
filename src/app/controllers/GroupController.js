@@ -1,3 +1,4 @@
+const { log } = require("console");
 const { default: mongoose } = require("mongoose");
 const Groups = require("../models/Groups");
 const Users = require("../models/Users");
@@ -60,11 +61,34 @@ class GroupController {
   }
   // GET: group/list
   async showGroup(req, res, next) {
-    const users = await Groups.find({})
-      .populate("masterID")
-      .populate("memberID");
     try {
-      res.send(users);
+      const user = await Users.findOne({
+        _id: req.params.userId,
+      });
+
+      if (user.role === "admin" || user.role === "manager") {
+        const group = await Groups.find({})
+          .populate("masterID")
+          .populate("memberID");
+        return res.json(group).status(200);
+      } else if (user.role === "staff") {
+        const groups = await Groups.find({});
+        const group = groups.map((item) => {
+          if (
+            item.masterID.includes(user._id) ||
+            item.memberID.includes(user._id)
+          ) {
+            return item._id;
+          }
+        });
+        const resData = await Groups.find({
+          _id: { $in: group },
+        })
+          .populate("masterID")
+          .populate("memberID");
+
+        return res.json(resData).status(200);
+      }
     } catch (error) {
       res.status(500).json(error);
     }
