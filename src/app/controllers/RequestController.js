@@ -55,8 +55,9 @@ class RequestController {
       });
       const arrMaters = await [...modelDayOff.listMaster];
       const countAction = await modelDayOff.countAction;
+      const count = +arrMaters.length - +countAction;
       if (
-        +arrMaters.length > +countAction &&
+        count > 1 &&
         newNoti.status !== "Approved" &&
         modelDayOff.status !== "Rejected" &&
         modelDayOff.status !== "Request Change"
@@ -68,17 +69,28 @@ class RequestController {
             arrMaters.length
           })`,
         });
-        const user = await Users.findOne({ _id: req.body.masterId });
-
-        const dataHistory = new History({
-          logOffId: modelDayOff._id,
+      } else if (+count === +1) {
+        await modelDayOff.updateOne({
+          $addToSet: { approved: modelNoti.masterID },
+          countAction: countAction + 1,
           status: MasterRquestSTT.APPROVED,
-          created: user.userName,
-          content: `${user.userName} approved`,
         });
-        await dataHistory.save();
-      } else {
-        return res.json("403").status(403);
+      }
+      const user = await Users.findOne({ _id: req.body.masterId });
+      const dataHistory = new History({
+        logOffId: modelDayOff._id,
+        status: MasterRquestSTT.APPROVED,
+        created: user.userName,
+        content: `${user.userName} approved`,
+      });
+      await dataHistory.save();
+      if (+count === +1) {
+        const resHistory = new History({
+          logOffId: req.body.dayoffId,
+          status: RquestSTT.DAY_OFF,
+          content: "Day Off has been created",
+        });
+        await resHistory.save();
       }
 
       return res.json(newNoti).status(200);
@@ -167,6 +179,10 @@ class RequestController {
       return res.json(error).status(400);
     }
   }
+
+  // async revertApproved(req, res, next) => {
+
+  // }
 }
 
 module.exports = new RequestController();

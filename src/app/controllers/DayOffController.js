@@ -114,10 +114,40 @@ class DayOffController {
         quantity: req.body.quantity,
         reason: req.body.reason,
       });
+  
       await dataHistory.save();
       return res.json(newDayOff).status(200);
     } catch (error) {
       return res.json(error).status(400);
+    }
+  }
+
+  async revertDayOff(req, res, next) {
+    try {
+      const dayoff = await DayOff.findOne({
+        _id: req.body.dayoffId,
+      });
+      if (
+        dayoff.status === RquestSTT.REQUESTED ||
+        dayoff.status === RquestSTT.APPROVE
+      ) {
+        await dayoff.updateOne({
+          canceled: dayoff.listMaster,
+          status: RquestSTT.CANCLE,
+        });
+        const user = await Users.findOne({ _id: req.body.userId });
+        const dataHistory = new History({
+          logOffId: req.body.dayoffId,
+          status: RquestSTT.CANCLE,
+          created: user.userName,
+          content: `${user.userName} revert requested`,
+          note: req.body.note,
+        });
+        await dataHistory.save();
+        return res.json(dayoff).status(200);
+      }
+    } catch (error) {
+      return res.json(error).status(500);
     }
   }
 }
