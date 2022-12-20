@@ -42,7 +42,6 @@ class GroupController {
   // PATCH: group/update/:id
   async updateGroup(req, res, next) {
     try {
-      console.log("req", req.params.id);
       const group = await Groups.findByIdAndUpdate(
         {
           _id: req.params.id,
@@ -54,10 +53,9 @@ class GroupController {
         }
       );
       const newGroup = await group.save();
-      console.log(newGroup);
       return res.json(newGroup).status(200);
     } catch (error) {
-      return res.json(error).status(500);
+      return res.status(500);
     }
   }
   // GET: group/list
