@@ -1,3 +1,4 @@
+const { default: axios } = require("axios");
 const { MasterRquestSTT, RquestSTT } = require("../../utils/status");
 const DayOff = require("../models/DayOff");
 const Groups = require("../models/Groups");
@@ -5,6 +6,11 @@ const History = require("../models/History");
 const Notifies = require("../models/Notifies");
 const Users = require("../models/Users");
 const User = require("../models/Users");
+const { WebClient, ErrorCode } = require("@slack/web-api");
+const token = process.env.SLACK_TOKEN;
+const web = new WebClient(token);
+const conversationId = "C031UJLFD43";
+const conversationIdDayoff = "C04FK0HPGDV";
 class DayOffController {
   createDayOff(req, res, next) {
     User.findOne({
@@ -49,6 +55,48 @@ class DayOffController {
                   quantity: data.quantity,
                   reason: data.reason,
                 });
+                try {
+                  (async () => {
+                    const result = await axios.post(
+                      `https://hooks.slack.com/services/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`,
+                      // `https://hooks.slack.com/services/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`,
+                      {
+                        blocks: [
+                          {
+                            type: "section",
+                            text: {
+                              type: "mrkdwn",
+                              text: `Name: *${user.userName}*`,
+                            },
+                          },
+                          {
+                            type: "section",
+                            fields: [
+                              {
+                                type: "mrkdwn",
+                                text: `
+                                  *Type Day Off:* ${
+                                    req.body.typeDayOff
+                                  }\n*Reason:* ${data.reason}\n*Quantity:* ${
+                                  data.quantity
+                                }\n*Partial Day:* ${
+                                  req.body.partialDay
+                                }\n*From Day:* ${data.fromDay.toLocaleDateString()}\n*To Day:* ${data.toDay.toLocaleDateString()}`,
+                              },
+                            ],
+                          },
+                        ],
+                        channel: conversationIdDayoff,
+                      }
+                    );
+                  })();
+                } catch (error) {
+                  if (error.code === ErrorCode.PlatformError) {
+                    console.log(error.data);
+                  } else {
+                    console.log("Well, that was unexpected.");
+                  }
+                }
                 await dataHistory.save();
                 data.listMaster.map((item) => {
                   const dataNotifies = new Notifies({
