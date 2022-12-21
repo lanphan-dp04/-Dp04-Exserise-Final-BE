@@ -74,7 +74,7 @@ class UserControllor {
       const checNumberPhone = await Users.findOne({
         phoneNumber: req.body.phoneNumber,
       });
-      if (checNumberPhone) {
+      if (checNumberPhone && checNumberPhone.email !== req.body.email) {
         return res.status(422).json(error);
       } else {
         const users = await Users.findByIdAndUpdate(req.params.id, req.body);

@@ -1,9 +1,10 @@
-const express = require('express');
+const express = require("express");
 
 const route = express.Router();
 
-const notifiesController = require('../app/controllers/NotifiesController');
+const notifiesController = require("../app/controllers/NotifiesController");
 
-route.get('/', notifiesController.getNotifies);
+route.get("/", notifiesController.getNotifies);
+// route.get("/slack", notifiesController.getSlack);
 
 module.exports = route;
