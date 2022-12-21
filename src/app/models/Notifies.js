@@ -8,7 +8,7 @@ const Notifies = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'dayoff',
   },
-  masterID : {
+  from : {
     type: Schema.Types.ObjectId,
     ref: 'Users',
   },
@@ -17,8 +17,16 @@ const Notifies = new Schema({
     enum: Object.values(RquestSTT),
     requited: true,
   },
-  note : {
+  desc: {
     type: String,
+  },
+  to : {
+    type: Schema.Types.ObjectId,
+    ref: 'Users',
+  },
+  isSeen: {
+    type: Boolean,
+    default: false,
     requited: true,
   },
 },{

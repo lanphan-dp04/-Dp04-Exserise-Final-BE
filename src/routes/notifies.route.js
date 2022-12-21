@@ -4,7 +4,8 @@ const route = express.Router();
 
 const notifiesController = require("../app/controllers/NotifiesController");
 
-route.get("/", notifiesController.getNotifies);
-// route.get("/slack", notifiesController.getSlack);
+route.get('/:id', notifiesController.getNotifies);
+route.post('/send', notifiesController.updateNotifies);
+
 
 module.exports = route;
