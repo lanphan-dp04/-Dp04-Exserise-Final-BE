@@ -58,15 +58,15 @@ class DayOffController {
                 try {
                   (async () => {
                     const result = await axios.post(
-                      // `https://hooks.slack.com/services/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`,
-                      `https://hooks.slack.com/services/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`,
+                      `https://hooks.slack.com/services/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`,
+                      // `https://hooks.slack.com/services/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`,
                       {
                         blocks: [
                           {
                             type: "section",
                             text: {
                               type: "mrkdwn",
-                              text: `Log Day Off:\n *${user.userName}*`,
+                              text: `Name: *${user.userName}*`,
                             },
                           },
                           {
@@ -74,27 +74,14 @@ class DayOffController {
                             fields: [
                               {
                                 type: "mrkdwn",
-                                text: `*Type DayOff:* ${req.body.typeDayOff}`,
-                              },
-                              {
-                                type: "mrkdwn",
-                                text: `*Reason:* ${data.reason}`,
-                              },
-                              {
-                                type: "mrkdwn",
-                                text: `*From Day:* ${data.fromDay.toLocaleDateString()}`,
-                              },
-                              {
-                                type: "mrkdwn",
-                                text: `*Partial Day:* ${req.body.partialDay}`,
-                              },
-                              {
-                                type: "mrkdwn",
-                                text: `*To Day:* ${data.toDay.toLocaleDateString()}`,
-                              },
-                              {
-                                type: "mrkdwn",
-                                text: `*Quantity:* ${data.quantity}`,
+                                text: `
+                                  *Type Day Off:* ${
+                                    req.body.typeDayOff
+                                  }\n*Reason:* ${data.reason}\n*Quantity:* ${
+                                  data.quantity
+                                }\n*Partial Day:* ${
+                                  req.body.partialDay
+                                }\n*From Day:* ${data.fromDay.toLocaleDateString()}\n*To Day:* ${data.toDay.toLocaleDateString()}`,
                               },
                             ],
                           },
