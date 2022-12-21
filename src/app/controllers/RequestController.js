@@ -43,13 +43,6 @@ class RequestController {
 
   async approveRequest(req, res, next) {
     try {
-      const modelNoti = await Notifies.findOne({
-        masterID: req.body.masterId,
-        dayoffID: req.body.dayoffId,
-      });
-      const newNoti = await modelNoti.updateOne({
-        status: MasterRquestSTT.APPROVED,
-      });
       const modelDayOff = await DayOff.findOne({
         _id: req.body.dayoffId,
       });
@@ -58,12 +51,12 @@ class RequestController {
       const count = +arrMaters.length - +countAction;
       if (
         count > 1 &&
-        newNoti.status !== "Approved" &&
+        modelDayOff.status !== "Approved" &&
         modelDayOff.status !== "Rejected" &&
         modelDayOff.status !== "Request Change"
       ) {
         await modelDayOff.updateOne({
-          $addToSet: { approved: modelNoti.masterID },
+          $addToSet: { approved: req.body.masterId },
           countAction: countAction + 1,
           status: `${MasterRquestSTT.APPROVED}(${countAction + 1}/${
             arrMaters.length
@@ -71,7 +64,7 @@ class RequestController {
         });
       } else if (+count === +1) {
         await modelDayOff.updateOne({
-          $addToSet: { approved: modelNoti.masterID },
+          $addToSet: { approved: req.body.masterId },
           countAction: countAction + 1,
           status: MasterRquestSTT.APPROVED,
         });
@@ -84,6 +77,16 @@ class RequestController {
         content: `${user.userName} approved`,
       });
       await dataHistory.save();
+
+      const dataNotifies = new Notifies({
+        dayoffID: modelDayOff._id,
+        from: req.body.masterId,
+        status: MasterRquestSTT.APPROVED,
+        to: modelDayOff.userId,
+        desc: `${user.userName} approved Log Off `,
+      });
+      await dataNotifies.save();
+
       if (+count === +1) {
         const resHistory = new History({
           logOffId: req.body.dayoffId,
@@ -92,8 +95,7 @@ class RequestController {
         });
         await resHistory.save();
       }
-
-      return res.json(newNoti).status(200);
+      return res.json(modelDayOff).status(200);
     } catch (error) {
       return res.json(error).status(500);
     }
@@ -101,14 +103,6 @@ class RequestController {
 
   async rejectRequest(req, res, next) {
     try {
-      const modelNoti = await Notifies.findOne({
-        masterID: req.body.masterId,
-        dayoffID: req.body.dayoffId,
-      });
-      const newNoti = await modelNoti.updateOne({
-        note: req.body.note || "",
-        status: MasterRquestSTT.REJECTED,
-      });
       const modelDayOff = await DayOff.findOne({
         _id: req.body.dayoffId,
       });
@@ -129,22 +123,23 @@ class RequestController {
         created: user.userName,
         content: `${user.userName} rejected`,
       });
+      const dataNotifies = new Notifies({
+        dayoffID: modelDayOff._id,
+        from: req.body.masterId,
+        status: MasterRquestSTT.REJECTED,
+        to: modelDayOff.userId,
+        desc: `${user.userName} rejected Log Off `,
+      });
+      await dataNotifies.save();
+
       await dataHistory.save();
-      return res.json(newNoti).status(200);
+      return res.json(modelDayOff).status(200);
     } catch (error) {
       return res.json(error).status(500);
     }
   }
   async changeRequest(req, res, next) {
     try {
-      const modelNoti = await Notifies.findOne({
-        masterID: req.body.masterId,
-        dayoffID: req.body.dayoffId,
-      });
-      const newNoti = await modelNoti.updateOne({
-        note: req.body.note || "",
-        status: MasterRquestSTT.REQUEST_CHANGE,
-      });
       const modelDayOff = await DayOff.findOne({
         _id: req.body.dayoffId,
       });
@@ -160,7 +155,15 @@ class RequestController {
         content: `${user.userName} request for change`,
       });
       await dataHistory.save();
-      return res.json(newNoti).status(200);
+      const dataNotifies = new Notifies({
+        dayoffID: modelDayOff._id,
+        from: req.body.masterId,
+        status: MasterRquestSTT.REQUEST_CHANGE,
+        to: modelDayOff.userId,
+        desc: `${user.userName} request changed Log Off `,
+      });
+      await dataNotifies.save();
+      return res.json(modelDayOff).status(200);
     } catch (error) {
       return res.json(error).status(500);
     }
@@ -179,10 +182,6 @@ class RequestController {
       return res.json(error).status(400);
     }
   }
-
-  // async revertApproved(req, res, next) => {
-
-  // }
 }
 
 module.exports = new RequestController();

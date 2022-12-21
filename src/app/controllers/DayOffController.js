@@ -53,9 +53,10 @@ class DayOffController {
                 data.listMaster.map((item) => {
                   const dataNotifies = new Notifies({
                     dayoffID: data.id,
-                    masterID: item,
+                    to: item,
                     status: data.status,
-                    note: "",
+                    from: data.userId,
+                    desc: `${user.userName} created Log Off `,
                   });
                   return dataNotifies.save();
                 });
@@ -114,8 +115,19 @@ class DayOffController {
         quantity: req.body.quantity,
         reason: req.body.reason,
       });
-  
+
       await dataHistory.save();
+
+      newDayOff.listMaster.map((item) => {
+        const dataNotifies = new Notifies({
+          dayoffID: newDayOff.id,
+          to: item,
+          status: RquestSTT.UPDATED,
+          from: newDayOff.userId,
+          desc: `${user.userName} updated Log Off `,
+        });
+        return dataNotifies.save();
+      });
       return res.json(newDayOff).status(200);
     } catch (error) {
       return res.json(error).status(400);
@@ -144,6 +156,16 @@ class DayOffController {
           note: req.body.note,
         });
         await dataHistory.save();
+        dayoff.listMaster.map((item) => {
+          const dataNotifies = new Notifies({
+            dayoffID: dayoff._id,
+            to: item,
+            status: RquestSTT.CANCLE,
+            from: dayoff.userId,
+            desc: `${user.userName} reverted Log Off `,
+          });
+          return dataNotifies.save();
+        });
         return res.json(dayoff).status(200);
       }
     } catch (error) {

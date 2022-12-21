@@ -3,13 +3,29 @@ const Notifies = require("../models/Notifies");
 const Users = require("../models/Users");
 class NotifiesController {
   async getNotifies(req, res, next) {
-    const masterID = req.query.masterId;
-    const dayoffID = req.query.dayoffId;
-    const noti = await Notifies.findOne({
-      masterID: masterID,
-      dayoffID: dayoffID,
-    })
-    return res.json(noti)
+    try {
+      const resNoti = await Notifies.find({
+        to: req.params.id,
+        isSeen: { $eq: false },
+      });
+      return res.json(resNoti).status(200);
+    } catch (error) {
+      return res.josn(error).status(500);
+    }
+  }
+  async updateNotifies(req, res, next) {
+    try {
+      const resNoti = await Notifies.findOneAndUpdate(
+        { _id: req.body.id },
+        {
+          isSeen: true,
+        }
+      );
+      await resNoti.save();
+      return res.json(resNoti).status(200);
+    } catch (error) {
+      return res.josn(error).status(500);
+    }
   }
 }
 
