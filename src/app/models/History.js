@@ -5,6 +5,10 @@ const Schema = mongoose.Schema;
 
 
 const History = new Schema({
+  typeDayOff: {
+    type: String,
+    require: true,
+  },
   logOffId: {
       type: Schema.Types.ObjectId,
       ref: 'DayOff',

@@ -22,14 +22,18 @@ class DayOffController {
         Groups.find({
           memberID: userId,
         })
-          .then((groups) => {
+          .then(async (groups) => {
             const arrMasterId = [];
             groups.forEach((group) => {
               arrMasterId.push(group.masterID);
             });
+
+            const admin = await Users.findOne({ role: 'admin'})
+            if(arrMasterId.length === 0) {
+              arrMasterId.push(admin._id)
+            }
             const newArrMaster = arrMasterId.toString().split(",");
             const newArrMasterId = Array.from(new Set(newArrMaster));
-
             const data = new DayOff({
               typeDayOff: req.body.typeDayOff,
               userId: userId,
@@ -45,6 +49,7 @@ class DayOffController {
               data.save().then(async (data) => {
                 const user = await Users.findOne({ _id: data.userId });
                 const dataHistory = new History({
+                  typeDayOff: req.body.typeDayOff,
                   logOffId: data._id,
                   status: data.status,
                   created: user.userName,
@@ -55,48 +60,48 @@ class DayOffController {
                   quantity: data.quantity,
                   reason: data.reason,
                 });
-                try {
-                  (async () => {
-                    const result = await axios.post(
-                      `https://hooks.slack.com/services/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`,
-                      // `https://hooks.slack.com/services/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`,
-                      {
-                        blocks: [
-                          {
-                            type: "section",
-                            text: {
-                              type: "mrkdwn",
-                              text: `Name: *${user.userName}*`,
-                            },
-                          },
-                          {
-                            type: "section",
-                            fields: [
-                              {
-                                type: "mrkdwn",
-                                text: `
-                                  *Type Day Off:* ${
-                                    req.body.typeDayOff
-                                  }\n*Reason:* ${data.reason}\n*Quantity:* ${
-                                  data.quantity
-                                }\n*Partial Day:* ${
-                                  req.body.partialDay
-                                }\n*From Day:* ${data.fromDay.toLocaleDateString()}\n*To Day:* ${data.toDay.toLocaleDateString()}`,
-                              },
-                            ],
-                          },
-                        ],
-                        channel: conversationIdDayoff,
-                      }
-                    );
-                  })();
-                } catch (error) {
-                  if (error.code === ErrorCode.PlatformError) {
-                    console.log(error.data);
-                  } else {
-                    console.log("Well, that was unexpected.");
-                  }
-                }
+                // try {
+                //   (async () => {
+                //     const result = await axios.post(
+                //       `https://hooks.slack.com/services/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`,
+                //       // `https://hooks.slack.com/services/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`,
+                //       {
+                //         blocks: [
+                //           {
+                //             type: "section",
+                //             text: {
+                //               type: "mrkdwn",
+                //               text: `Name: *${user.userName}*`,
+                //             },
+                //           },
+                //           {
+                //             type: "section",
+                //             fields: [
+                //               {
+                //                 type: "mrkdwn",
+                //                 text: `
+                //                   *Type Day Off:* ${
+                //                     req.body.typeDayOff
+                //                   }\n*Reason:* ${data.reason}\n*Quantity:* ${
+                //                   data.quantity
+                //                 }\n*Partial Day:* ${
+                //                   req.body.partialDay
+                //                 }\n*From Day:* ${data.fromDay.toLocaleDateString()}\n*To Day:* ${data.toDay.toLocaleDateString()}`,
+                //               },
+                //             ],
+                //           },
+                //         ],
+                //         channel: conversationIdDayoff,
+                //       }
+                //     );
+                //   })();
+                // } catch (error) {
+                //   if (error.code === ErrorCode.PlatformError) {
+                //     console.log(error.data);
+                //   } else {
+                //     console.log("Well, that was unexpected.");
+                //   }
+                // }
                 await dataHistory.save();
                 data.listMaster.map((item) => {
                   const dataNotifies = new Notifies({
@@ -154,6 +159,7 @@ class DayOffController {
 
       const dataHistory = new History({
         logOffId: req.body.dayoffId,
+        typeDayOff: req.body.typeDayOff,
         status: RquestSTT.UPDATED,
         created: user.userName,
         content: `${user.userName} update requested`,
