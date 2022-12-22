@@ -41,6 +41,16 @@ class RequestController {
     }
   }
 
+  async getListRequest(req, res, next) {
+    try {
+      const resData = await DayOff.find()
+      .populate({path: 'userId', select: 'userName'})
+      return res.json(resData)
+    } catch (error) {
+      return res.json(error).status(500);
+    }
+  }
+
   async approveRequest(req, res, next) {
     try {
       const modelDayOff = await DayOff.findOne({
