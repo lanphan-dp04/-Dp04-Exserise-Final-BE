@@ -1,14 +1,13 @@
 const Role = {
-  STAFF: 'staff',
-  MASTER: 'master',
-  ADMIN: 'admin'
-}
+  STAFF: "staff",
+  ADMIN: "admin",
+  MANAGER: "manager",
+  HR: "hr",
+};
 
 const PERMISSIONS = {
-  READ_LEAVE: 'read_leave'
-}
+  READ_LEAVE: "read_leave",
+};
 
-const staffPermissions = [
-  PERMISSIONS.READ_LEAVE
-]
-module.exports = {Role , PERMISSIONS, staffPermissions}
+const staffPermissions = [PERMISSIONS.READ_LEAVE];
+module.exports = { Role, PERMISSIONS, staffPermissions };

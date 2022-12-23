@@ -9,8 +9,10 @@ const User = require("../models/Users");
 const { WebClient, ErrorCode } = require("@slack/web-api");
 const token = process.env.SLACK_TOKEN;
 const web = new WebClient(token);
-const conversationId = "C031UJLFD43";
-const conversationIdDayoff = "C04FK0HPGDV";
+const conversationChannelHr = process.env.ID_CHANNEL_HR;
+const conversationIdDayoff = process.env.ID_CHANNEL_DAYOFF;
+const botHr = process.env.HR_CHANNEL;
+const botDayoff = process.env.DAYOFF_CHANNEL;
 class DayOffController {
   createDayOff(req, res, next) {
     User.findOne({
@@ -28,9 +30,9 @@ class DayOffController {
               arrMasterId.push(group.masterID);
             });
 
-            const admin = await Users.findOne({ role: 'admin'})
-            if(arrMasterId.length === 0) {
-              arrMasterId.push(admin._id)
+            const admin = await Users.findOne({ role: "admin" });
+            if (arrMasterId.length === 0) {
+              arrMasterId.push(admin._id);
             }
             const newArrMaster = arrMasterId.toString().split(",");
             const newArrMasterId = Array.from(new Set(newArrMaster));
@@ -60,48 +62,89 @@ class DayOffController {
                   quantity: data.quantity,
                   reason: data.reason,
                 });
-                // try {
-                //   (async () => {
-                //     const result = await axios.post(
-                //       `https://hooks.slack.com/services/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`,
-                //       // `https://hooks.slack.com/services/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`,
-                //       {
-                //         blocks: [
-                //           {
-                //             type: "section",
-                //             text: {
-                //               type: "mrkdwn",
-                //               text: `Name: *${user.userName}*`,
-                //             },
-                //           },
-                //           {
-                //             type: "section",
-                //             fields: [
-                //               {
-                //                 type: "mrkdwn",
-                //                 text: `
-                //                   *Type Day Off:* ${
-                //                     req.body.typeDayOff
-                //                   }\n*Reason:* ${data.reason}\n*Quantity:* ${
-                //                   data.quantity
-                //                 }\n*Partial Day:* ${
-                //                   req.body.partialDay
-                //                 }\n*From Day:* ${data.fromDay.toLocaleDateString()}\n*To Day:* ${data.toDay.toLocaleDateString()}`,
-                //               },
-                //             ],
-                //           },
-                //         ],
-                //         channel: conversationIdDayoff,
-                //       }
-                //     );
-                //   })();
-                // } catch (error) {
-                //   if (error.code === ErrorCode.PlatformError) {
-                //     console.log(error.data);
-                //   } else {
-                //     console.log("Well, that was unexpected.");
-                //   }
-                // }
+                try {
+                  (async () => {
+                    const result = await axios.post(
+                      `https://hooks.slack.com/services/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`,
+                      {
+                        blocks: [
+                          {
+                            type: "section",
+                            text: {
+                              type: "mrkdwn",
+                              text: `Name: *${user.userName}*`,
+                            },
+                          },
+                          {
+                            type: "section",
+                            fields: [
+                              {
+                                type: "mrkdwn",
+                                text: `
+                                  *Type Day Off:* ${
+                                    req.body.typeDayOff
+                                  }\n*Reason:* ${data.reason}\n*Quantity:* ${
+                                  data.quantity
+                                }\n*Partial Day:* ${
+                                  req.body.partialDay
+                                }\n*From Day:* ${data.fromDay.toLocaleDateString()}\n*To Day:* ${data.toDay.toLocaleDateString()}`,
+                              },
+                            ],
+                          },
+                        ],
+                        channel: conversationIdDayoff,
+                      }
+                    );
+                  })();
+                } catch (error) {
+                  if (error.code === ErrorCode.PlatformError) {
+                    console.log(error.data);
+                  } else {
+                    console.log("Well, that was unexpected.");
+                  }
+                }
+                // bot dayoff
+                try {
+                  (async () => {
+                    const result = await axios.post(
+                      `https://hooks.slack.com/services/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`,
+                      {
+                        blocks: [
+                          {
+                            type: "section",
+                            text: {
+                              type: "mrkdwn",
+                              text: `Name: *${user.userName}*`,
+                            },
+                          },
+                          {
+                            type: "section",
+                            fields: [
+                              {
+                                type: "mrkdwn",
+                                text: `
+                                  *Type Day Off:* ${
+                                    req.body.typeDayOff
+                                  }\n*Reason:* ${data.reason}\n*Quantity:* ${
+                                  data.quantity
+                                }\n*Partial Day:* ${
+                                  req.body.partialDay
+                                }\n*From Day:* ${data.fromDay.toLocaleDateString()}\n*To Day:* ${data.toDay.toLocaleDateString()}`,
+                              },
+                            ],
+                          },
+                        ],
+                        channel: conversationChannelHr,
+                      }
+                    );
+                  })();
+                } catch (error) {
+                  if (error.code === ErrorCode.PlatformError) {
+                    console.log(error.data);
+                  } else {
+                    console.log("Well, that was unexpected.");
+                  }
+                }
                 await dataHistory.save();
                 data.listMaster.map((item) => {
                   const dataNotifies = new Notifies({
