@@ -42,6 +42,7 @@ class UserControllor {
           userName: req.body.userName,
           password: hashedPass,
           email: req.body.email,
+          role: req.body.role,
           phoneNumber: req.body.phoneNumber || " ",
           avatar: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
         });
