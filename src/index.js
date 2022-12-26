@@ -5,6 +5,7 @@ const cookieParser = require("cookie-parser");
 let cors = require("cors");
 const bodyParser = require("body-parser");
 const methodOverride = require("method-override");
+require("dotenv").config();
 
 //connect db
 db.connect();

@@ -13,6 +13,8 @@ const conversationChannelHr = process.env.ID_CHANNEL_HR;
 const conversationIdDayoff = process.env.ID_CHANNEL_DAYOFF;
 const botHr = process.env.HR_CHANNEL;
 const botDayoff = process.env.DAYOFF_CHANNEL;
+require("dotenv").config();
+console.log("ddd:", botDayoff);
 class DayOffController {
   createDayOff(req, res, next) {
     User.findOne({
@@ -64,37 +66,34 @@ class DayOffController {
                 });
                 try {
                   (async () => {
-                    const result = await axios.post(
-                      `https://hooks.slack.com/services/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`,
-                      {
-                        blocks: [
-                          {
-                            type: "section",
-                            text: {
-                              type: "mrkdwn",
-                              text: `Name: *${user.userName}*`,
-                            },
+                    const result = await axios.post(botDayoff, {
+                      blocks: [
+                        {
+                          type: "section",
+                          text: {
+                            type: "mrkdwn",
+                            text: `Name: *${user.userName}*`,
                           },
-                          {
-                            type: "section",
-                            fields: [
-                              {
-                                type: "mrkdwn",
-                                text: `
+                        },
+                        {
+                          type: "section",
+                          fields: [
+                            {
+                              type: "mrkdwn",
+                              text: `
                                   *Type Day Off:* ${
                                     req.body.typeDayOff
                                   }\n*Reason:* ${data.reason}\n*Quantity:* ${
-                                  data.quantity
-                                }\n*Partial Day:* ${
-                                  req.body.partialDay
-                                }\n*From Day:* ${data.fromDay.toLocaleDateString()}\n*To Day:* ${data.toDay.toLocaleDateString()}`,
-                              },
-                            ],
-                          },
-                        ],
-                        channel: conversationIdDayoff,
-                      }
-                    );
+                                data.quantity
+                              }\n*Partial Day:* ${
+                                req.body.partialDay
+                              }\n*From Day:* ${data.fromDay.toLocaleDateString()}\n*To Day:* ${data.toDay.toLocaleDateString()}`,
+                            },
+                          ],
+                        },
+                      ],
+                      channel: conversationIdDayoff,
+                    });
                   })();
                 } catch (error) {
                   if (error.code === ErrorCode.PlatformError) {
@@ -106,37 +105,34 @@ class DayOffController {
                 // bot dayoff
                 try {
                   (async () => {
-                    const result = await axios.post(
-                      `https://hooks.slack.com/services/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`,
-                      {
-                        blocks: [
-                          {
-                            type: "section",
-                            text: {
-                              type: "mrkdwn",
-                              text: `Name: *${user.userName}*`,
-                            },
+                    const result = await axios.post(botHr, {
+                      blocks: [
+                        {
+                          type: "section",
+                          text: {
+                            type: "mrkdwn",
+                            text: `Name: *${user.userName}*`,
                           },
-                          {
-                            type: "section",
-                            fields: [
-                              {
-                                type: "mrkdwn",
-                                text: `
+                        },
+                        {
+                          type: "section",
+                          fields: [
+                            {
+                              type: "mrkdwn",
+                              text: `
                                   *Type Day Off:* ${
                                     req.body.typeDayOff
                                   }\n*Reason:* ${data.reason}\n*Quantity:* ${
-                                  data.quantity
-                                }\n*Partial Day:* ${
-                                  req.body.partialDay
-                                }\n*From Day:* ${data.fromDay.toLocaleDateString()}\n*To Day:* ${data.toDay.toLocaleDateString()}`,
-                              },
-                            ],
-                          },
-                        ],
-                        channel: conversationChannelHr,
-                      }
-                    );
+                                data.quantity
+                              }\n*Partial Day:* ${
+                                req.body.partialDay
+                              }\n*From Day:* ${data.fromDay.toLocaleDateString()}\n*To Day:* ${data.toDay.toLocaleDateString()}`,
+                            },
+                          ],
+                        },
+                      ],
+                      channel: conversationChannelHr,
+                    });
                   })();
                 } catch (error) {
                   if (error.code === ErrorCode.PlatformError) {
